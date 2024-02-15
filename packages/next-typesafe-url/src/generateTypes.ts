@@ -146,8 +146,9 @@ export function generateTypesFile({
       .join(paths.relativePathFromOutputToSrc, pathAfterSrc)
       // replace backslashes with forward slashes
       .replace(/\\/g, "/")
-      // ensure relative paths start with "./"
-      .replace(/^(?!\.\.\/)/, "./");
+      // ensure relative paths start with the import prefix, whether the default ("./")
+      // or a custom path as configured in tsconfig.json (e.g. "@/")
+      .replace(/^(?!\.\.\/)/, paths.importPrefix);
     importStatements.push(
       `import { type RouteType as ${routeVariableName} } from "${finalRelativePath}";`
     );

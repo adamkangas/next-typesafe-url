@@ -17,6 +17,7 @@ Options:
 --watch / -w,  Watch for file changes in src/app and src/pages and regenerate the types file
 --srcPath, The path to your src directory relative to the cwd the cli is run from. DEFAULT: "./src"
 --outputPath, The path of the generated .d.ts file relative to the cwd the cli is run from. DEFAULT: "./next-typesafe-url_.d.ts"
+--importPrefix, The prefix to use in the generated .d.ts file when importing dynamic routes (e.g. custom path from tsconfig.json). DEFAULT: "./"
 --help,  Show this help message
 `;
 
@@ -34,6 +35,10 @@ const cli = meow(helpText, {
       type: "string",
       default: "./src",
     },
+    importPrefix: {
+      type: "string",
+      default: "./"
+    }
   },
 });
 
@@ -42,6 +47,7 @@ export type Paths = {
   absoluteAppPath: string | null;
   absoluteOutputPath: string;
   relativePathFromOutputToSrc: string;
+  importPrefix: string;
 };
 
 export type RouteInformation = {
@@ -85,7 +91,7 @@ function watch(paths: Paths) {
 }
 
 if (require.main === module) {
-  const { srcPath, outputPath } = cli.flags;
+  const { srcPath, outputPath, importPrefix } = cli.flags;
 
   const absoluteSrcPath = path.join(process.cwd(), srcPath);
 
@@ -106,11 +112,12 @@ if (require.main === module) {
   const absoluteAppPath = directoryExistsSync(appPath) ? appPath : null;
   const absolutePagesPath = directoryExistsSync(pagesPath) ? pagesPath : null;
 
-  const paths = {
+  const paths: Paths = {
     absolutePagesPath,
     absoluteAppPath,
     absoluteOutputPath,
     relativePathFromOutputToSrc,
+    importPrefix
   };
 
   if (cli.flags.watch) {
